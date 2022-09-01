@@ -3,7 +3,7 @@ resource "aws_codepipeline" "codepipeline" {
   role_arn = data.aws_arn.codepipelinearn.arn
 
   artifact_store {
-    location = data.aws_s3_object.codepipeline_bucket_object.bucket
+    location = data.aws_s3_bucket.codepipeline_bucket_object.bucket
     type     = "S3"
 
     # encryption_key {
@@ -77,7 +77,7 @@ data "aws_arn" "codepipelinearn" {
   arn = "arn:aws:iam::847370586410:role/service-role/AWSCodePipelineServiceRole-us-east-1-testappapcodedeplypipeline"
 }
  
-data "aws_s3_object" "codepipeline_bucket_object" {
+data "aws_s3_bucket" "codepipeline_bucket_object" {
   bucket = "jd-ecs-azure-bucket"
   key = "artifact.zip"
 }
