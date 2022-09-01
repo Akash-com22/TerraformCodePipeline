@@ -1,0 +1,64 @@
+trigger: none
+
+parameters:
+  - name: envName
+    displayName: Environment
+    type: string
+    values:
+    - 'devl'
+    - 'qual'
+    - 'cert'
+    - 'prod'
+
+  - name: ResourceName
+    displayName: ResourceName
+    type: string
+    values:
+    - 'CodePipeline'
+
+  - name: Operation
+    displayName: Operation
+    type: string
+    values:
+    - 'apply'
+    - 'destroy'
+
+jobs:
+- ${{ if contains(parameters.Operation, 'apply') }}:
+  - job: 'DevlopmentApply_${{ parameters.ResourceName }}'
+    condition: eq('${{ parameters.envName }}', 'devl')
+    pool:
+      name: JD-SME
+
+    steps:
+    - bash: |
+       cd Infra/Terraform/${{ parameters.ResourceName }}
+       ls
+       terraform init
+      displayName: 'Terraform Init'
+
+    - bash: |
+       cd Infra/Terraform/${{ parameters.ResourceName }}
+       ls
+       terraform plan -var-file="env_params/${{ parameters.envName }}.tfvars"
+      displayName: 'Terraform plan'
+
+    - bash: |
+       cd Infra/Terraform/${{ parameters.ResourceName }}
+       ls
+       terraform apply -var-file="env_params/${{ parameters.envName }}.tfvars" --auto-approve
+      displayName: 'Terraform apply'
+
+- ${{ if contains(parameters.Operation, 'destroy') }}:
+  - job: 'DevlopmentDestroy_${{ parameters.ResourceName }}'
+    condition: eq('${{ parameters.envName }}', 'devl')
+    pool:
+      name: JD-SME
+
+    steps:
+    - bash: |
+       cd Infra/Terraform/${{ parameters.ResourceName }}
+       ls
+       terraform init
+       terraform destroy -var-file="env_params/${{ parameters.envName }}.tfvars" --auto-approve
+      displayName: 'Terraform destroy'
